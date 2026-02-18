@@ -1,0 +1,6 @@
+area: ES|QL
+issues: 
+  - 142628
+pr: 142634
+summary: Fix java.lang.ClassCastException in Decay.java
+type: bug
