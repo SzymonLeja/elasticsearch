@@ -593,6 +593,12 @@ public class DecayTests extends AbstractScalarFunctionTestCase {
         // Datenanos random
         testCaseSuppliers.addAll(dateNanosRandomTestCases());
 
+        testCaseSuppliers.addAll(doubleValueIntParamsTestCase(10.0, 0, 10, 5, 0.5, "linear", 0.75));
+        testCaseSuppliers.addAll(doubleValueIntParamsTestCase(10.0, 1, 10, 5, 0.5, "exp", 0.7578582832551991));
+
+        testCaseSuppliers.addAll(longValueIntParamsTestCase(10, 0, 10, 5, 0.5, "linear", 0.75));
+        testCaseSuppliers.addAll(longValueIntParamsTestCase(10L, 1, 10, 5, 0.5, "exp", 0.7578582832551991));
+
         return parameterSuppliersFromTypedData(testCaseSuppliers);
     }
 
@@ -1176,6 +1182,49 @@ public class DecayTests extends AbstractScalarFunctionTestCase {
         );
     }
 
+
+    private static List<TestCaseSupplier> doubleValueIntParamsTestCase(double value, int origin, int scale, Integer offset, Double decay, String functionType, double expected) 
+    {
+        return List.of(
+            new TestCaseSupplier(
+                List.of(DataType.DOUBLE, DataType.INTEGER, DataType.INTEGER, DataType.SOURCE),
+                () -> new TestCaseSupplier.TestCase(
+                    List.of(
+                        new TestCaseSupplier.TypedData(value, DataType.DOUBLE, "value"),
+                        new TestCaseSupplier.TypedData(origin, DataType.INTEGER, "origin").forceLiteral(),
+                        new TestCaseSupplier.TypedData(scale, DataType.INTEGER, "scale").forceLiteral(),
+                        new TestCaseSupplier.TypedData(createOptionsMap(offset, decay, functionType), DataType.SOURCE, "options")
+                            .forceLiteral()
+                    ),
+                    startsWith("DecayDoubleEvaluator["),
+                    DataType.DOUBLE,
+                    closeTo(expected, Math.ulp(expected))
+                )
+            )
+        );
+    }
+
+    private static List<TestCaseSupplier> longValueIntParamsTestCase(long value, int origin, int scale, Integer offset, Double decay, String functionType, double expected) 
+    {
+        return List.of(
+            new TestCaseSupplier(
+                List.of(DataType.LONG, DataType.INTEGER, DataType.INTEGER, DataType.SOURCE),
+                () -> new TestCaseSupplier.TestCase(
+                    List.of(
+                        new TestCaseSupplier.TypedData(value, DataType.LONG, "value"),
+                        new TestCaseSupplier.TypedData(origin, DataType.INTEGER, "origin").forceLiteral(),
+                        new TestCaseSupplier.TypedData(scale, DataType.INTEGER, "scale").forceLiteral(),
+                        new TestCaseSupplier.TypedData(createOptionsMap(offset, decay, functionType), DataType.SOURCE, "options")
+                            .forceLiteral()
+                    ),
+                    startsWith("DecayLongEvaluator["),
+                    DataType.DOUBLE,
+                    closeTo(expected, Math.ulp(expected))
+                )
+            )
+        );
+    }
+        
     private static double dateNanosDecayWithScoreScript(long value, long origin, long scale, long offset, double decay, String type) {
         long valueMillis = value / 1_000_000L;
         long originMillis = origin / 1_000_000L;
